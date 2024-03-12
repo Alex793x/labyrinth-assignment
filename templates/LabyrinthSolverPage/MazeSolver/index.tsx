@@ -9,16 +9,21 @@ type MazeProps = {
 
 const Maze = ({ mazeJson }: MazeProps) => {
     const [path, setPath] = useState<Cell[]>([]);
+    const [visited, setVisited] = useState<Set<Cell>>(new Set());
+    const [wrongPaths, setWrongPaths] = useState<Cell[]>([]);
     const [pathPoints, setPathPoints] = useState<string>("");
 
 
     useEffect(() => {
-        const foundPath = aStarSearch(mazeJson);
-        if (foundPath) {
-            // Clear any existing path
+        const result = aStarSearch(mazeJson);
+        if (result.path) {
+            const visitedButNotPath = Array.from(result.visited).filter(cell =>
+                !(result.path ?? []).some(pathCell => pathCell.row === cell.row && pathCell.col === cell.col)
+            );
+            setWrongPaths(visitedButNotPath);// Set the wrong paths for animation
             setPath([]);
-    
-            // Function to add cells to the path one by one with a delay
+            setVisited(result.visited); // Update visited cells
+
             const drawPathWithDelay = (path: Cell[], delay: number) => {
                 path.forEach((cell, index) => {
                     setTimeout(() => {
@@ -26,9 +31,17 @@ const Maze = ({ mazeJson }: MazeProps) => {
                     }, index * delay);
                 });
             };
-    
-            // Call the function with the desired delay, e.g., 500ms
-            drawPathWithDelay(foundPath, 200);
+
+            const drawWrongPathsWithDelay = (wrongPaths: Cell[], delay: number) => {
+                wrongPaths.forEach((cell, index) => {
+                    setTimeout(() => {
+                        setVisited(prev => new Set(prev).add(cell));
+                    }, index * delay);
+                });
+            };
+
+            drawPathWithDelay(result.path, 200);
+            drawWrongPathsWithDelay(visitedButNotPath, 200);
         }
     }, [mazeJson]);
 
@@ -90,6 +103,15 @@ const Maze = ({ mazeJson }: MazeProps) => {
         return totalLength;
     }, 0);
 
+
+    const calculateWrongPathPoints = (wrongPaths: Cell[]) => {
+        return wrongPaths.map(cell => {
+            const x = cell.col * cellSize + cellSize / 2;
+            const y = cell.row * cellSize + cellSize / 2;
+            return { x, y };
+        });
+    };
+
     return (
         <div className="relative text-center">
             <h2 className="p-4 text-xl" >RED IS THE STARTING POINT AND PURPLE IS THE GOAL!</h2>
@@ -102,6 +124,8 @@ const Maze = ({ mazeJson }: MazeProps) => {
                             const onPath = isPath(cell);
                             const pathIndex = path.findIndex(pathCell => pathCell.row === cell.row && pathCell.col === cell.col);
                             const nextPathCell = pathIndex >= 0 && pathIndex < path.length - 1 ? path[pathIndex + 1] : null;
+                            const wrongPathPoints = calculateWrongPathPoints(wrongPaths).map(p => `${p.x},${p.y}`).join(' ');
+                            const wrongPathLength = wrongPaths.length * cellSize;
                             const direction = getPathDirection(cell, nextPathCell);
 
                             return (
@@ -112,20 +136,38 @@ const Maze = ({ mazeJson }: MazeProps) => {
                                     ${setBorder(cell)}`}
                                     key={colIndex}
                                 >
+                                    {visited.has(cell) && !isPath(cell) && (
+                                        <svg className="absolute top-14 left-0" width="100%" height="100%">
+                                            <circle cx={cell.col * cellSize + cellSize / 2} cy={cell.row * cellSize + cellSize / 2} r="2" fill="orange" />
+                                        </svg>
+                                    )}
+                                    {wrongPaths.map((cell, index) => (
+                                        <svg className="absolute top-14 left-0" width="100%" height="100%" key={`wrong-${index}`}>
+                                            <circle
+                                                cx={cell.col * cellSize + cellSize / 2}
+                                                cy={cell.row * cellSize + cellSize / 2}
+                                                r="3"
+                                                fill="orange"
+                                                style={{
+                                                    animation: `fadeIn ${index * 0.15}s linear forwards`, // Adjust the timing as needed
+                                                }}
+                                            />
+                                        </svg>
+                                    ))}
                                     {onPath && (
-                                          <svg className="absolute top-14 left-0" width="100%" height="100%">
-                                          <polyline
-                                              points={pathPoints}
-                                              fill="none"
-                                              stroke="red"
-                                              strokeWidth="5"
-                                              strokeDasharray={pathLength}
-                                              strokeDashoffset={pathLength}
-                                              style={{
-                                                  animation: `drawPath ${path.length * 0.15}s linear forwards`
-                                              }}
-                                          />
-                                      </svg>
+                                        <svg className="absolute top-14 left-0" width="100%" height="100%">
+                                            <polyline
+                                                points={pathPoints}
+                                                fill="none"
+                                                stroke="red"
+                                                strokeWidth="5"
+                                                strokeDasharray={pathLength}
+                                                strokeDashoffset={pathLength}
+                                                style={{
+                                                    animation: `drawPath ${path.length * 0.15}s linear forwards`
+                                                }}
+                                            />
+                                        </svg>
                                     )}
                                 </div>
                             );

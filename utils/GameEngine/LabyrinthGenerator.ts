@@ -24,18 +24,16 @@ class UnionFind {
     }
 }
 
-
-
-
 function initializeMaze(rows: number, cols: number): MazeConfig {
+    // Initialize all paths as blocked (false)
     const maze: Cell[][] = Array.from({ length: rows }, (_, row) =>
         Array.from({ length: cols }, (_, col) => ({
             row,
             col,
-            north: true,
-            east: true,
-            south: true,
-            west: true,
+            north: false,
+            east: false,
+            south: false,
+            west: false,
         }))
     );
 
@@ -48,58 +46,30 @@ function initializeMaze(rows: number, cols: number): MazeConfig {
     };
 }
 
-
 function union(cell1: Cell, cell2: Cell, maze: Cell[][]): void {
-    // Determine the orientation of the union
+    // When connecting two cells, set the direction to true to indicate an open path
     if (cell1.row === cell2.row) {
-        // Horizontal neighbor
         if (cell1.col < cell2.col) {
-            cell1.east = false;
-            cell2.west = false;
+            cell1.east = true;
+            cell2.west = true;
         } else {
-            cell1.west = false;
-            cell2.east = false;
+            cell1.west = true;
+            cell2.east = true;
         }
     } else {
-        // Vertical neighbor
         if (cell1.row < cell2.row) {
-            cell1.south = false;
-            cell2.north = false;
+            cell1.south = true;
+            cell2.north = true;
         } else {
-            cell1.north = false;
-            cell2.south = false;
+            cell1.north = true;
+            cell2.south = true;
         }
     }
-}
-
-function isMazeConnected(maze: Cell[][], start: {row: number, col: number}): boolean {
-    const rows = maze.length;
-    const cols = maze[0].length;
-    const visited: boolean[][] = Array.from({ length: rows }, () => Array(cols).fill(false));
-
-    function dfs(cell: Cell) {
-        if (visited[cell.row][cell.col]) return;
-        visited[cell.row][cell.col] = true;
-
-        // North
-        if (!cell.north && cell.row > 0) dfs(maze[cell.row - 1][cell.col]);
-        // East
-        if (!cell.east && cell.col < cols - 1) dfs(maze[cell.row][cell.col + 1]);
-        // South
-        if (!cell.south && cell.row < rows - 1) dfs(maze[cell.row + 1][cell.col]);
-        // West
-        if (!cell.west && cell.col > 0) dfs(maze[cell.row][cell.col - 1]);
-    }
-
-    dfs(maze[start.row][start.col]);
-
-    // Check if all cells were visited
-    return visited.every(row => row.every(cell => cell));
 }
 
 export function generateMaze(rows: number, cols: number): MazeConfig {
     let mazeConfig = initializeMaze(rows, cols);
-    const { maze, start } = mazeConfig;
+    const { maze } = mazeConfig;
     const unionFind = new UnionFind();
     
     let edges: [Cell, Cell][] = [];
@@ -120,11 +90,10 @@ export function generateMaze(rows: number, cols: number): MazeConfig {
         const id2 = `${cell2.row},${cell2.col}`;
 
         if (unionFind.find(id1) !== unionFind.find(id2)) {
-            union(cell1, cell2, maze);
+            union(cell1, cell2, maze); // Open a path between the cells
             unionFind.union(id1, id2);
         }
     });
 
-    // Ensure there's no isolated sections and there's a path from start to goal
     return mazeConfig;
 }
