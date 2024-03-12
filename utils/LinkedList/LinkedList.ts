@@ -450,6 +450,49 @@ class LinkedList<T> {
 
 
 
+    sort(compareFn: (a: T, b: T) => number): void {
+        if (this.head == null || this.head.next == null) {
+            return;
+        }
+
+        // Implement the sorting algorithm of your choice here.
+        // For example, you could implement a simple bubble sort for demonstration purposes:
+        let swapped: boolean;
+        do {
+            swapped = false;
+            let current = this.head;
+            while (current.next != null) {
+                if (compareFn(current.data, current.next.data) > 0) {
+                    let temp = current.data;
+                    current.data = current.next.data;
+                    current.next.data = temp;
+                    swapped = true;
+                }
+                current = current.next;
+            }
+        } while (swapped);
+    }
+
+    public shift(): T | null {
+        if (this.isEmpty()) {
+            return null;
+        }
+
+        const headData = this.head?.data || null;
+        this.head = this.head?.next || null;
+
+        if (this.head) {
+            this.head.prev = null;
+        } else {
+            this.tail = null; // If the list is now empty, tail should also be null
+        }
+
+        this.amount--;
+        return headData;
+    }
+
+
+
 }
 
 export default LinkedList

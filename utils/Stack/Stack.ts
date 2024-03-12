@@ -21,6 +21,18 @@ class Stack<T> {
         return false;
     }
 
+
+    find(predicate: (item: T) => boolean): T | undefined {
+        let current = this.top;
+        while (current !== null) {
+            if (predicate(current.data)) {
+                return current.data;
+            }
+            current = current.next;
+        }
+        return undefined;
+    }
+
     push(item: T) {
         this.buffer.addFirst(item);
         this.top = this.buffer.head;
@@ -41,6 +53,14 @@ class Stack<T> {
             throw new Error("Stack is empty");
         }
         return this.buffer.getFirst();
+    }
+    sort(compareFn: (a: T, b: T) => number): void {
+        this.buffer.sort(compareFn);
+    }
+
+    shift(): T | undefined {
+        const item = this.buffer.shift();
+        return item === null ? undefined : item;
     }
 
     size() {
