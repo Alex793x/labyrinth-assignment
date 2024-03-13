@@ -16,7 +16,6 @@ The solver doesn't rely on recursion it instead uses a loop to iterate over cell
 The time complexity of A* Search depends on several factors, including the heuristic function and the structure of the maze. In the worst case, where all cells need to be considered, it can be exponential. However, with a good heuristic function, it typically performs well, often close to linear time complexity (O(n log n)), where n is the number of cells in the maze.
 
 ### How the algorithm works:
-
 - It maintains two sets: `openSet` and `closedSet`. The `openSet` contains nodes to be evaluated, and the `closedSet` contains nodes that have already been evaluated.
 - The algorithm iterates over nodes in the `openSet`, selecting the one with the lowest combined cost (f = g + h), where g is the cost from the start node to the current node, and h is the heuristic estimate of the cost from the current node to the goal.
 - It expands the selected node by considering its neighbors, updating their costs, and adding them to the `openSet` if necessary.
@@ -57,20 +56,17 @@ Therefore, the overall time complexity is dominated by the sorting step and can 
 
 ### How the algorithm works:
 Leverages the `UnionFind` class to efficiently manage connected cell groups and avoid cycles during maze creation.
-
-* `unionFind.find(id)`: Determines the root cell of the set a cell belongs to (path compression for faster future lookups).
-* `union(id1, id2)`: Merges the sets containing cells `id1` and `id2`.
+`unionFind.find(id)`: Determines the root cell of the set a cell belongs to (path compression for faster future lookups).
+`union(id1, id2)`: Merges the sets containing cells `id1` and `id2`.
 
 ##### Maze Initialization:
-
-* `initializeMaze(rows, cols)`: Creates a 2D array representing the maze, with each cell object containing boolean flags for north, east, south, and west paths (initially all blocked).
+`initializeMaze(rows, cols)`: Creates a 2D array representing the maze, with each cell object containing boolean flags for north, east, south, and west paths (initially all blocked).
 
 ##### Union Function:
+`union(cell1, cell2, maze)`: Opens a path between two cells by setting the appropriate direction flag to true in the maze array.
 
-* `union(cell1, cell2, maze)`: Opens a path between two cells by setting the appropriate direction flag to true in the maze array.
-
-##### Generating the Maze: `generateMaze(rows, cols)`:
-
+##### Generating the Maze
+`generateMaze(rows, cols)`:
 1. Initializes the maze and creates a `UnionFind` instance.
 2. Generates a list of all possible edges (connections) between adjacent cells and shuffles them for randomness.
 3. Iterates through edges:
