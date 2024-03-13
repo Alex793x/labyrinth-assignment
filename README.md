@@ -1,7 +1,8 @@
 # Solution for maze generator and maze solver
 
 ## LINK FOR DEPLOYED VERSION
-`LINK IS FOR DEPLOYED GITHUB PAGES` -> [LINK TO DEPLOYED GITHUB PAGES]()
+`LINK IS FOR DEPLOYED GITHUB PAGES - mazeSolver` -> [LINK TO DEPLOYED GITHUB PAGES - mazeSolver](https://alex793x.github.io/labyrinth-assignment/)
+`LINK IS FOR DEPLOYED GITHUB PAGES - maze generator` -> [LINK TO DEPLOYED GITHUB PAGES - maze generator](https://alex793x.github.io/labyrinth-assignment/generator)
 
 ## Algortihm used for the maze solver
 [Link for maze solver](https://github.com/Alex793x/labyrinth-assignment/blob/main/utils/GameEngine/A*DepthSearch.ts)
